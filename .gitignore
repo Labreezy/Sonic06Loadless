@@ -1,0 +1,8 @@
+*.mp4
+build
+dist
+.idea
+./calc_from_video.py
+*.lss
+*.spec
+.venv
