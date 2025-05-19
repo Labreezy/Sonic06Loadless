@@ -1,4 +1,4 @@
-# Sonic '06 Loadless LiveSplit Timer
+# Sonic '06 (and others) Loadless LiveSplit Timer
 
 Load times have built-in insane amounts of variation in Sonic '06.  This is a tool that interfaces with LiveSplit that pauses the timer whenever the game is loading.
 
