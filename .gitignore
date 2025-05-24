@@ -6,3 +6,4 @@ dist
 *.lss
 *.spec
 .venv
+__pycache__
