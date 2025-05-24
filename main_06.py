@@ -143,8 +143,7 @@ LOAD_FEATURES = [
 
 
 if __name__ == '__main__':
-
-    for caminfo in cv2_enumerate_cameras.enumerate_cameras(cv2.CAP_DSHOW):
+    for caminfo in cv2_enumerate_cameras.enumerate_cameras(cv2.CAP_ANY):
         print(f"{caminfo.index+1}: {caminfo.name}")
     camnum = input("Camera number here:")
 
