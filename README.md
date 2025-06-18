@@ -21,6 +21,10 @@ To install the requirements:
 
 ``pip install -r requiements.txt``
 
-To build the standalone executable:
+To build the standalone executable for a game:
 
 ``pyinstaller -F -n Sonic06Loadless main_06.py``
+
+or
+
+``pyinstaller -F -n SonicAdveture1Loadless main_sa1.py``
