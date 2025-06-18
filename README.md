@@ -27,4 +27,4 @@ To build the standalone executable for a game:
 
 or
 
-``pyinstaller -F -n SonicAdveture1Loadless main_sa1.py``
+``pyinstaller -F -n SonicAdventure1Loadless main_sa1.py``
