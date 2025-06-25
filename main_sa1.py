@@ -3,7 +3,7 @@ import cv2
 import cv2_enumerate_cameras
 
 
-class SA1VideoStreamCapture(VideoStreamCapture):
+class SA1VideoStreamCapture(VideoStreamCapture06):
     def __init__(self, src=0, features=None, tcp_port=16834):
         super().__init__(src, features, tcp_port)
     def is_loading(self):
@@ -26,7 +26,7 @@ LOAD_FEATURES_SA1 = [
 
 if __name__ == '__main__':
 
-    for caminfo in cv2_enumerate_cameras.enumerate_cameras(cv2.CAP_DSHOW):
+    for caminfo in cv2_enumerate_cameras.enumerate_cameras(cv2.CAP_ANY):
         print(f"{caminfo.index+1}: {caminfo.name}")
     camnum = input("Camera number here:")
 

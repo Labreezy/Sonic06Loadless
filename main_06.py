@@ -1,3 +1,5 @@
+import winsound
+
 import cv2
 import cv2_enumerate_cameras
 import numpy as np
@@ -6,15 +8,22 @@ import socket
 import sys
 from threading import Thread
 
-
-
-class VideoStreamCapture(object):
-    def __init__(self, src=0, features=None, tcp_port=16834):
+BEEP_ON_PAUSE = False
+LOAD_CHANGES = []
+LAST_LOAD_START = -1
+class VideoStreamCapture06(object):
+    def __init__(self, src=0, features=None, from_file=False, tcp_port=16834, seek_start_ms=0):
         self.capture = cv2.VideoCapture(src)
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect(("localhost", tcp_port))
+        if not from_file:
+            self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+            self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect(("localhost", tcp_port))
+        else:
+            self.seek_start = seek_start_ms
+            self.capture.set(cv2.CAP_PROP_POS_MSEC, seek_start_ms)
+            self.splits = []
+            self.curr_split_index = 0
         self.timer_paused = False
         self.thread = Thread(target=self.update_frame, args=())
         self.thread.daemon = True
@@ -65,14 +74,18 @@ class VideoStreamCapture(object):
 
 
     def update_timer(self):
+        global BEEP_ON_PAUSE
         self.sock.send(b"gettimerphase\r\n")
         curr_phase = self.sock.recv(128)
-        if curr_phase == b"Running\n":
+        if curr_phase == b"Running\n" or BEEP_ON_PAUSE:
             load_res = self.is_loading()
             if load_res and not self.timer_paused:
+
                 self.sock.send(b"pausegametime\n")
                 self.timer_paused = True
                 print("PAUSING IGT")
+                if BEEP_ON_PAUSE:
+                    winsound.MessageBeep()
             if not load_res and self.timer_paused:
                 self.sock.send(b"unpausegametime\n")
                 self.timer_paused = False
@@ -82,6 +95,12 @@ class VideoStreamCapture(object):
                 self.sock.send(b"unpausegametime\n")
                 self.timer_paused = False
         sleep(.025)
+
+        def update_timer_offline(self):
+            load_res = self.is_loading()
+
+
+
 def create_blank(w, h, rgb_color=(0,0,0)):
 
     image = np.zeros((h,w,3), np.uint8)
@@ -112,8 +131,11 @@ class FeatureComparison():
         else:
             self.cmp = create_blank(w,h)
 
-    def get_vals(self):
-        self.clean_readings()
+    def get_vals(self, now=None):
+        if now is None:
+            self.clean_readings()
+        else:
+            self.clean_readings_custom_now(now)
         return [r[0] for r in self.readings]
 
     def clean_readings_custom_now(self, now):
@@ -127,10 +149,12 @@ class FeatureComparison():
         sim = self.sim_metric(subframe,self.cmp)
         if self.freeze:
             self.cmp = subframe
-        self.clean_readings()
+
         if now is None:
+            self.clean_readings()
             self.readings.append((sim,time()))
         else:
+            self.clean_readings_custom_now(now)
             self.readings.append((sim,now))
 
 
@@ -143,14 +167,15 @@ LOAD_FEATURES = [
 
 
 if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        for caminfo in cv2_enumerate_cameras.enumerate_cameras(cv2.CAP_ANY):
+            print(f"{caminfo.index+1}: {caminfo.name}")
+        camnum = input("Camera number here:")
 
-    for caminfo in cv2_enumerate_cameras.enumerate_cameras(cv2.CAP_DSHOW):
-        print(f"{caminfo.index+1}: {caminfo.name}")
-    camnum = input("Camera number here:")
+        capture = VideoStreamCapture06(int(camnum) - 1, LOAD_FEATURES)
+        print("Capture obtained")
+        while True:
+            capture.preview_frame()
+            capture.update_timer()
 
-    capture = VideoStreamCapture(int(camnum)-1,LOAD_FEATURES)
-    print("Capture obtained")
-    while True:
-        capture.preview_frame()
-        capture.update_timer()
 
