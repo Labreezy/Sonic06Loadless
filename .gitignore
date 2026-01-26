@@ -4,6 +4,5 @@ dist
 .idea
 ./calc_from_video.py
 *.lss
-*.spec
 .venv
 __pycache__
