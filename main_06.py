@@ -1,5 +1,3 @@
-import winsound
-
 import cv2
 import cv2_enumerate_cameras
 import numpy as np
@@ -7,6 +5,9 @@ from time import time, sleep
 import socket
 import sys
 from threading import Thread
+
+if sys.platform == "win32":
+    import winsound
 
 BEEP_ON_PAUSE = False
 LOAD_CHANGES = []
@@ -84,7 +85,7 @@ class VideoStreamCapture06(object):
                 self.sock.send(b"pausegametime\n")
                 self.timer_paused = True
                 print("PAUSING IGT")
-                if BEEP_ON_PAUSE:
+                if BEEP_ON_PAUSE and sys.platform == "win32":
                     winsound.MessageBeep()
             if not load_res and self.timer_paused:
                 self.sock.send(b"unpausegametime\n")

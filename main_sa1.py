@@ -5,7 +5,7 @@ import cv2_enumerate_cameras
 
 class SA1VideoStreamCapture(VideoStreamCapture06):
     def __init__(self, src=0, features=None, tcp_port=16834):
-        super().__init__(src, features, tcp_port)
+        super().__init__(src=src, features=features, tcp_port=tcp_port)
     def is_loading(self):
         if self.frame is None:
             return False
